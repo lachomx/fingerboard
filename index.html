@@ -1,0 +1,951 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fingerboard">
+<meta name="theme-color" content="#1d1b4f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<title>Fingerboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1e1c51;--navy2:#17163f;--green:#24b866;--green2:#1fa457;--purple:#a14fb8;--purple2:#c17ed8;--blue:#0a74ff;--hold:#4dff6a;--ink:#0d0b33;--muted:#9c9ca8;--line:#ececf0;--soft:#f3f3f6;--go:#2ee87a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:#fff;color:var(--ink);font-family:'IBM Plex Sans',-apple-system,system-ui,sans-serif;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+input,select{font:inherit;color:inherit}
+.page{max-width:720px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 110px)}
+.head{display:flex;align-items:center;justify-content:center;position:relative;min-height:46px}
+.head h1{font-size:22px;font-weight:700;margin:0;text-align:center}
+.head .l,.head .r{position:absolute;top:50%;transform:translateY(-50%)}
+.head .l{left:0}.head .r{right:0}
+.pill{background:var(--ink);color:#fff;border-radius:999px;padding:8px 18px;font-weight:600;font-size:15px}
+.link{color:var(--blue);font-size:16px;font-weight:600;padding:8px 0}
+.tabs{display:flex;border-bottom:1px solid var(--line);margin:10px -16px 0}
+.tabs button{flex:1;padding:14px 0 12px;font-size:18px;color:#a6a6b0;border-bottom:4px solid transparent}
+.tabs button.on{color:var(--ink);border-color:#3ef06a}
+.card{margin-top:26px}
+.card-top{display:flex;align-items:center;gap:10px;margin:0 8px 10px}
+.avatar{width:34px;height:34px;border-radius:50%;background:#a8660b;color:#fff;font-weight:700;display:grid;place-items:center;font-size:14px;flex:none}
+.card-top .who{flex:1;font-size:16px}
+.dots{font-size:26px;line-height:1;letter-spacing:1px;padding:0 6px;font-weight:700}
+.media{background:var(--navy);border-radius:6px;padding:22px 26px 16px;cursor:pointer;display:block;width:100%;text-align:left}
+.chip{display:inline-flex;align-items:center;gap:6px;background:#dcdce6;color:var(--ink);border-radius:6px;padding:5px 12px;font-size:14px;margin-top:10px}
+.info{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 8px 0;gap:12px}
+.info h3{margin:0 0 8px;font-size:19px;font-weight:700;cursor:pointer}
+.level{display:inline-block;background:#e9fbea;color:#36cf57;padding:4px 12px;border-radius:4px;font-size:16px}
+.level.mittel{background:#fff6d1;color:#d6a300}
+.level.fortgeschritten{background:#ffe9e6;color:#e5482f}
+.dur{background:var(--soft);border-radius:6px;padding:6px 12px;font-size:16px;white-space:nowrap}
+.dur b{font-weight:700}
+.empty{color:var(--muted);text-align:center;padding:60px 20px;line-height:1.5}
+.fab{position:fixed;right:max(20px,calc(50vw - 340px));bottom:calc(env(safe-area-inset-bottom) + 86px);width:60px;height:60px;border-radius:50%;background:var(--go);color:#fff;font-size:38px;font-weight:400;box-shadow:0 4px 14px rgba(0,0,0,.18);display:grid;place-items:center;z-index:4;line-height:1}
+.nav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);z-index:5}
+.nav button{flex:1;max-width:160px;padding:8px 0 7px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:#a6a6b0}
+.nav button.on{color:var(--ink);font-weight:700}
+.nav svg{width:28px;height:28px}
+.board{display:block;width:100%;height:auto}
+.board .h.pick{cursor:pointer}
+/* forms */
+.sec{margin-top:26px}
+.sec h2{font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 10px;font-weight:600}
+.field{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:16px}
+.field>label{flex:1}
+.txt{width:100%;border:1px solid #dcdce4;border-radius:10px;padding:12px 14px;font-size:17px;background:#fff}
+.sel{border:1px solid #dcdce4;border-radius:10px;padding:9px 12px;font-size:16px;background:#fff;max-width:60%}
+.stp{display:flex;align-items:center;gap:6px}
+.stp button{width:38px;height:38px;border-radius:8px;background:var(--ink);color:#fff;font-size:22px;line-height:1}
+.stp input{width:62px;text-align:center;border:1px solid #dcdce4;border-radius:8px;padding:7px 4px;font-size:17px;font-weight:600}
+.stp span{width:20px;color:var(--muted);font-size:14px}
+.seg{display:flex;background:var(--soft);border-radius:10px;padding:3px;gap:3px}
+.seg button{flex:1;padding:9px 6px;border-radius:8px;font-size:15px;color:#555}
+.seg button.on{background:#fff;color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.boardbox{background:var(--navy);border-radius:10px;padding:18px 16px 14px;margin-top:10px}
+.boardbox .hint{color:#c9c8e8;font-size:14px;text-align:center;margin-top:10px;line-height:1.4}
+.boardbox .seg{margin-bottom:14px;background:rgba(255,255,255,.12)}
+.boardbox .seg button{color:#d6d5f2}
+.boardbox .seg button.on{background:#fff;color:var(--ink)}
+.exrow{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
+.exrow .mini{width:96px;flex:none;background:var(--navy);border-radius:6px;padding:8px}
+.exrow .tx{flex:1;min-width:0}
+.exrow b{display:block;font-size:16px}
+.exrow small{color:#6c6c7a;font-size:13.5px;line-height:1.35;display:block}
+.exrow .acts{display:flex;flex-direction:column;gap:2px}
+.ib{width:34px;height:30px;border-radius:6px;background:var(--soft);font-size:15px;color:#444}
+.addrow{display:flex;gap:10px;margin-top:6px}
+.btn{display:block;width:100%;text-align:center;background:var(--blue);color:#fff;border-radius:10px;padding:15px;font-size:18px;font-weight:700}
+.btn.ghost{background:var(--soft);color:var(--ink)}
+.btn.danger{background:#fff0f0;color:#d22}
+.toggle{width:52px;height:31px;border-radius:999px;background:#d8d8e0;position:relative;transition:.2s;flex:none}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:25px;height:25px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:.2s}
+.toggle.on{background:var(--go)}
+.toggle.on::after{left:24px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+.stat{background:var(--soft);border-radius:12px;padding:14px 10px;text-align:center}
+.stat b{display:block;font-size:22px}
+.stat span{font-size:13px;color:#6c6c7a}
+.hist{border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:12px;cursor:pointer}
+.hist .t{display:flex;justify-content:space-between;gap:10px}
+.hist .t b{font-size:16px}
+.hist .t span,.hist small{color:#6c6c7a;font-size:14px}
+.hist .det{margin-top:10px;font-size:14px;line-height:1.55;border-top:1px solid var(--line);padding-top:10px}
+.sheet-bg{position:fixed;inset:0;background:rgba(10,8,40,.45);z-index:30;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:#fff;width:100%;max-width:520px;border-radius:16px 16px 0 0;padding:10px 16px calc(env(safe-area-inset-bottom) + 16px)}
+.sheet h4{margin:8px 0 6px;text-align:center;font-size:15px;color:var(--muted);font-weight:600}
+.sheet button{display:block;width:100%;padding:15px;font-size:17px;border-bottom:1px solid var(--line)}
+.sheet button.red{color:#d22}
+.sheet button:last-child{border:0;font-weight:600}
+.note{font-size:14px;color:#6c6c7a;line-height:1.45;margin-top:8px}
+.cal-h{display:flex;align-items:center;justify-content:space-between;margin-top:18px}
+.cal-h b{font-size:18px}
+.cal-h button{width:40px;height:40px;border-radius:50%;background:var(--soft);font-size:20px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px}
+.cal .wd{text-align:center;font-size:12px;color:var(--muted);padding:4px 0}
+.cd{aspect-ratio:1/1.12;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:6px;gap:3px;font-size:15px;position:relative}
+.cd.out{opacity:.3}
+.cd.plan{background:var(--soft);cursor:pointer}
+.cd.today{box-shadow:inset 0 0 0 2px var(--ink)}
+.cd.sel{background:var(--navy);color:#fff}
+.cd.done{background:#e3fbe8}
+.cd.done.sel{background:var(--green2)}
+.cd .cdots{display:flex;gap:3px}
+.cd .cdots i{width:9px;height:9px;border-radius:50%}
+.cd .ok{position:absolute;bottom:3px;font-size:11px;color:#22a457;font-weight:700}
+.cd.sel .ok{color:#fff}
+.cd .ok.free{color:#9c9ca8}
+.lv-X{background:#b4b4c0}
+.cd.miss .num{color:#d22}
+.lv-E{background:#36cf57}.lv-M{background:#e8b400}.lv-H{background:#e5482f}
+.cal-leg{display:flex;gap:14px;justify-content:center;font-size:13px;color:#6c6c7a;margin-top:10px;flex-wrap:wrap}
+.cal-leg span{display:inline-flex;align-items:center;gap:5px}
+.cal-leg i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.plan-card{background:var(--navy);color:#fff;border-radius:14px;padding:16px;margin-top:16px}
+.plan-card .pc-d{font-size:14px;color:#c9c8e8}
+.plan-card h3{margin:4px 0 10px;font-size:20px}
+.plan-card .pc-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.plan-card .pc-list span{border-radius:6px;padding:4px 10px;font-size:14px;font-weight:600;color:#14123a}
+.plan-card .btn{margin-top:4px}
+.prog{height:10px;border-radius:999px;background:var(--soft);overflow:hidden;margin-top:8px}
+.prog i{display:block;height:100%;background:var(--go)}
+.banner{display:flex;align-items:center;gap:12px;background:var(--navy);color:#fff;border-radius:12px;padding:12px 14px;margin-top:14px}
+.banner div{flex:1;font-size:14px;color:#c9c8e8;line-height:1.35}
+.banner b{display:block;color:#fff;font-size:16px}
+.banner button{background:var(--blue);color:#fff;border-radius:8px;padding:9px 14px;font-weight:700;font-size:15px}
+
+/* ---------- Player ---------- */
+#player:empty{display:none}
+.player{position:fixed;inset:0;z-index:20;color:#fff;overflow:hidden;background:linear-gradient(100deg,var(--navy),var(--navy2));user-select:none;-webkit-user-select:none}
+.player.rest{background:linear-gradient(100deg,var(--purple),var(--purple2))}
+.fill{position:absolute;left:0;top:0;bottom:0;width:0}
+.player.work .fill{background:linear-gradient(100deg,var(--green),var(--green2))}
+.player.rest .fill{background:linear-gradient(100deg,var(--navy),var(--navy2))}
+.p-in{position:absolute;inset:0;display:flex;flex-direction:column;padding:max(14px,env(safe-area-inset-top)) max(22px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(22px,env(safe-area-inset-left))}
+.p-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;min-height:48px}
+.p-x{justify-self:start;width:44px;height:44px;display:grid;place-items:center}
+.p-x svg{width:24px;height:24px}
+.p-title{font-weight:700;font-size:clamp(20px,5.6vmin,46px);text-align:center;line-height:1.15}
+.p-ctrl{justify-self:end;display:flex;gap:clamp(10px,3.4vmin,40px);align-items:center}
+.p-ctrl button{width:clamp(30px,6vmin,52px);height:clamp(30px,6vmin,52px);display:grid;place-items:center}
+.p-ctrl button[disabled]{opacity:.35}
+.p-ctrl svg{width:100%;height:100%}
+.p-sub{text-align:center;font-weight:600;font-size:clamp(16px,4.2vmin,36px);margin-top:clamp(2px,1.6vmin,16px)}
+.p-sub.g{color:#3ef07a}
+.p-mid{flex:1;display:flex;align-items:center;justify-content:center;gap:clamp(8px,2vw,28px);min-height:0}
+.p-board{width:min(54vw,128vmin)}
+.grip{width:clamp(104px,17vw,172px);background:rgba(255,255,255,.26);border-radius:clamp(12px,2.2vmin,22px);padding:clamp(10px,2vmin,18px) 10px;text-align:center;font-size:clamp(12px,2.8vmin,20px);line-height:1.25}
+.grip svg{width:clamp(44px,9vmin,80px);height:auto;display:block;margin:0 auto 6px}
+.grip .gn{font-weight:600}
+.p-bot{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:12px}
+.p-set{font-size:clamp(18px,4.6vmin,40px);justify-self:start}
+.p-set span{color:#8e8db5}
+.p-btn{background:var(--blue);color:#fff;border-radius:clamp(8px,1.6vmin,14px);font-weight:700;font-size:clamp(17px,4.3vmin,38px);padding:clamp(10px,2.6vmin,24px) clamp(24px,6vmin,80px);min-width:clamp(200px,24vw,480px)}
+.p-right{justify-self:end;text-align:center}
+.p-time{font-weight:700;font-size:clamp(34px,9.5vmin,90px);line-height:1;font-variant-numeric:tabular-nums}
+.ht b{display:block;font-size:clamp(20px,4.8vmin,40px);font-variant-numeric:tabular-nums}
+.ht span{font-size:clamp(13px,3.2vmin,28px);color:#cfcde8}
+.big{font-weight:700;font-size:clamp(90px,34vmin,300px);line-height:1;color:#dcdce4;font-variant-numeric:tabular-nums}
+.rt{text-align:center}
+.rt .p-time{font-size:clamp(64px,15vmin,140px)}
+.rt .lb{font-size:clamp(22px,6vmin,56px);margin-top:4px}
+.rt .plus{margin-top:clamp(6px,2vmin,16px);background:rgba(255,255,255,.2);border-radius:999px;padding:6px 16px;font-size:clamp(14px,3vmin,22px);font-weight:600}
+.wt{text-align:center;font-size:clamp(16px,4vmin,32px)}
+.wt .row{display:flex;align-items:center;justify-content:center;gap:clamp(24px,7vmin,70px);margin:clamp(6px,1.6vmin,14px) 0}
+.wt .row button{width:clamp(52px,10vmin,96px);height:clamp(52px,10vmin,96px);background:#05042a;border-radius:6px;display:grid;place-items:center}
+.wt .row button svg{width:45%;height:45%}
+.wt .val{min-width:3.6em;font-size:clamp(28px,6.5vmin,60px)}
+.wt .val b{font-size:1.2em}
+.wt small{font-size:.75em}
+.done-s{display:flex;gap:clamp(12px,3vw,40px);text-align:center}
+.done-s div{background:rgba(255,255,255,.1);border-radius:14px;padding:clamp(12px,3vmin,26px) clamp(16px,3vw,36px)}
+.done-s b{display:block;font-size:clamp(26px,7vmin,60px)}
+.done-s span{color:#cfcde8;font-size:clamp(13px,3vmin,22px)}
+.dlg-bg{position:absolute;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;padding:16px;z-index:3}
+.dlg{background:#fff;color:var(--ink);border-radius:22px;padding:clamp(18px,4vmin,40px) clamp(18px,4vmin,40px);width:min(700px,100%)}
+.dlg h3{margin:0 0 10px;font-size:clamp(19px,4.2vmin,30px)}
+.dlg p{margin:0;font-size:clamp(15px,3.4vmin,24px);line-height:1.35}
+.dlg .v{text-align:center;font-weight:700;font-size:clamp(20px,4.4vmin,30px);margin-top:14px}
+.dlg input[type=range]{width:100%;margin:6px 0 20px;accent-color:#2c8bff;height:30px}
+.dlg .ok{display:block;width:100%;background:#2ce77a;color:#fff;border-radius:14px;padding:clamp(12px,3vmin,22px);font-weight:700;font-size:clamp(17px,4vmin,28px)}
+.p-board.mb{width:min(44vw,104vmin)}
+.tasks{display:flex;flex-direction:column;gap:clamp(6px,1.6vmin,14px)}
+.task{display:flex;align-items:center;gap:clamp(8px,1.6vmin,14px);font-weight:600;font-size:clamp(16px,4.6vmin,36px);background:rgba(0,0,0,.2);border-radius:12px;padding:clamp(6px,1.6vmin,14px) clamp(10px,2.2vmin,20px)}
+.task i,.task-ed i{width:clamp(10px,1.8vmin,14px);height:clamp(22px,5vmin,40px);border-radius:4px;flex:none}
+.p-next{font-size:clamp(14px,3.4vmin,26px);color:#e6e5f5;background:rgba(0,0,0,.22);border-radius:10px;padding:clamp(8px,2vmin,14px) 16px;max-width:46vw;text-align:center}
+.tot{font-size:clamp(13px,3.4vmin,26px);color:#e6e5f5;margin-top:4px;font-variant-numeric:tabular-nums}
+.task-ed{display:flex;gap:8px;align-items:center;margin-top:10px}
+.task-ed .sel{max-width:none;flex:1;min-width:0;padding:9px 6px;font-size:15px}
+.tn{width:54px;text-align:center;border:1px solid #dcdce4;border-radius:8px;padding:8px 4px;font-size:16px;font-weight:600}
+.rot{display:none}
+@media (orientation:portrait){
+  .p-mid{flex-wrap:wrap;align-content:center}
+  .p-board,.p-board.mb{width:94vw;order:-1}
+  .p-next{max-width:none}
+  .grip{width:40vw}
+  .p-top{grid-template-columns:auto 1fr auto}
+  .p-title{font-size:clamp(18px,5.4vw,30px)}
+  .p-ctrl{gap:14px}
+  .p-ctrl button{width:28px;height:28px}
+  .p-bot{grid-template-columns:1fr 1fr;row-gap:16px}
+  .p-bot>div:nth-child(2){grid-column:1/-1;order:3}
+  .p-btn{width:100%;min-width:0}
+  .rot{display:block;text-align:center;color:#a9a8cf;font-size:13px;margin-top:6px}
+  .done-s{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="player"></div>
+<script>
+'use strict';
+// ---------- Helpers & Storage ----------
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Math.random().toString(36).slice(2, 10);
+const clone = o => JSON.parse(JSON.stringify(o));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('fw.' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('fw.' + k, JSON.stringify(v)); } catch {} }
+};
+const mmss = s => { s = Math.max(0, Math.ceil(s)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+const human = s => { s = Math.round(s); return s < 60 ? s + ' s' : Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0') + ' min'; };
+
+// ---------- Beastmaker 1000 ----------
+// Koordinaten im Board-SVG (viewBox 1060 x 304)
+const HOLDS = {
+  M:{x:392,y:0,w:290,h:52,n:'Flacher Sloper',sl:1},
+  J1:{x:72,y:10,w:141,h:44,n:'Henkel links',jug:1},
+  J6:{x:847,y:10,w:141,h:44,n:'Henkel rechts',jug:1},
+  A1:{x:46,y:62,w:167,h:44,n:'Kleine Leiste links'},
+  A2:{x:227,y:0,w:165,h:74,n:'Runder Sloper links',sl:1},
+  A3:{x:394,y:62,w:121,h:44,n:'Tiefes Loch Mitte links'},
+  A4:{x:545,y:62,w:121,h:44,n:'Tiefes Loch Mitte rechts'},
+  A5:{x:681,y:0,w:165,h:74,n:'Runder Sloper rechts',sl:1},
+  A6:{x:848,y:62,w:166,h:44,n:'Kleine Leiste rechts'},
+  B1:{x:16,y:138,w:167,h:44,n:'Große Leiste links'},
+  B2:{x:197,y:138,w:91,h:44,n:'2-Finger-Loch links'},
+  B3:{x:303,y:138,w:120,h:44,n:'3-Finger-Loch links'},
+  B4:{x:439,y:138,w:166,h:44,n:'Mittelleiste'},
+  B5:{x:620,y:138,w:121,h:44,n:'3-Finger-Loch rechts'},
+  B6:{x:756,y:138,w:91,h:44,n:'2-Finger-Loch rechts'},
+  B7:{x:862,y:138,w:166,h:44,n:'Große Leiste rechts'},
+  C1:{x:122,y:228,w:166,h:44,n:'Mittlere Leiste links'},
+  C2:{x:303,y:228,w:91,h:44,n:'Unteres Loch links'},
+  C3:{x:409,y:228,w:120,h:44,n:'Untere Mittelleiste links'},
+  C4:{x:545,y:228,w:120,h:44,n:'Untere Mittelleiste rechts'},
+  C5:{x:681,y:228,w:90,h:44,n:'Unteres Loch rechts'},
+  C6:{x:786,y:228,w:166,h:44,n:'Mittlere Leiste rechts'}
+};
+let svgN = 0;
+function boardSVG(L, R, pick, marks) {
+  const id = 'bc' + (++svgN);
+  let s = `<svg class="board" viewBox="-2 -2 1064 308" xmlns="http://www.w3.org/2000/svg">
+<defs><clipPath id="${id}"><rect x="0" y="0" width="1060" height="304" rx="150" ry="150"/></clipPath></defs>
+<rect x="0" y="0" width="1060" height="304" rx="150" ry="150" fill="#8b5d39"/>
+<g clip-path="url(#${id})"><rect x="-10" y="-40" width="1080" height="252" rx="130" ry="96" fill="#aa7d51"/></g>`;
+  for (const [k, h] of Object.entries(HOLDS)) {
+    const on = k === L || k === R;
+    const base = h.jug ? '#a2754a' : h.sl ? '#c69c6d' : (k[0] === 'C' ? '#5f3a17' : '#7a4a28');
+    const rx = h.sl ? 10 : 22;
+    s += `<rect${h.jug ? ` clip-path="url(#${id})"` : ''} class="h${pick ? ' pick' : ''}" data-hold="${k}" x="${h.x}" y="${h.y}" width="${h.w}" height="${h.h}" rx="${rx}" fill="${marks ? (marks[k] || base) : (on ? 'var(--hold)' : base)}"/>`;
+    if (pick && on) {
+      const t = L === R ? 'L+R' : (k === L ? 'L' : 'R');
+      s += `<text x="${h.x + h.w / 2}" y="${h.y + h.h / 2 + 11}" text-anchor="middle" font-size="32" font-weight="700" fill="#14123a" pointer-events="none">${t}</text>`;
+    }
+  }
+  return s + '</svg>';
+}
+const holdName = k => k ? HOLDS[k].n : '–';
+function holdsText(e) {
+  if (e.type === 'minute') return e.tasks.map(taskText).join(' → ');
+  if (!e.L && !e.R) return 'Kein Griff gewählt';
+  if (e.L === e.R) return holdName(e.L) + ' (beide Hände)';
+  if (!e.L || !e.R) return (e.L ? 'Links: ' + holdName(e.L) : 'Rechts: ' + holdName(e.R)) + ' (einarmig)';
+  return holdName(e.L) + ' + ' + holdName(e.R);
+}
+
+// Minuten-Training: jede Minute eine Liste von Aufgaben an symmetrischen Griffpaaren
+const PAIRS = ['J1|J6', 'A1|A6', 'A2|A5', 'M|M', 'A3|A4', 'B1|B7', 'B2|B6', 'B3|B5', 'B4|B4', 'C1|C6', 'C2|C5', 'C3|C4'];
+const pairName = k => HOLDS[k].n.replace(/ (links|rechts)$/, '');
+const TCOL = ['#4dff6a', '#ffd84d', '#5ee0ff'];
+const taskText = t => (t.kind === 'pull' ? `${t.n} Klimmzüge` : t.kind === 'hang' ? `${t.n} s Hang` : 'Max Hang') + ' · ' + pairName(t.L);
+const taskSay = t => (t.kind === 'pull' ? `${t.n} Klimmzüge` : t.kind === 'hang' ? `${t.n} Sekunden Hang` : 'Max Hang') + ', ' + pairName(t.L);
+function taskMarks(e) { const m = {}; e.tasks.forEach((t, i) => { for (const k of [t.L, t.R]) if (k && !m[k]) m[k] = TCOL[i % 3]; }); return m; }
+const exHolds = e => e.type === 'minute' ? (e.tasks[0] || {}) : e;
+
+const GRIPS = {offen:'Offene Hand (open hand)', halb:'Halb aufgestellt (half crimp)', voll:'Voll aufgestellt (full crimp)'};
+const FINGERS = {vier:'Vier', 'drei-v':'Drei vorne', 'drei-h':'Drei hinten', 'zwei-v':'Zwei vorne', 'zwei-m':'Zwei Mitte', 'zwei-h':'Zwei hinten'};
+const FMASK = {vier:[1,1,1,1], 'drei-v':[1,1,1,0], 'drei-h':[0,1,1,1], 'zwei-v':[1,1,0,0], 'zwei-m':[0,1,1,0], 'zwei-h':[0,0,1,1]};
+// Handsymbol: Zeigefinger..kleiner Finger, aktive Finger hell, eingeklappte blass
+function handSVG(fingers, grip, left) {
+  const m = FMASK[fingers] || FMASK.vier, H = [40, 46, 43, 33];
+  let f = '';
+  m.forEach((a, i) => {
+    const x = 14 + i * 12, h = a ? H[i] : 14, y = 50 - h;
+    f += `<rect x="${x}" y="${y}" width="10" height="${h + 6}" rx="5" fill="#fff" opacity="${a ? 1 : .35}"/>`;
+    if (a && grip !== 'offen') f += `<rect x="${x}" y="${y}" width="10" height="${grip === 'voll' ? 14 : 9}" rx="4" fill="#1e1c51" opacity=".28"/>`;
+  });
+  const thumb = grip === 'voll' ? `<ellipse cx="30" cy="20" rx="14" ry="6" fill="#fff" stroke="#1e1c51" stroke-opacity=".25"/>` : `<rect x="2" y="44" width="10" height="24" rx="5" transform="rotate(-28 7 56)" fill="#fff"/>`;
+  return `<svg viewBox="0 0 66 86" ${left ? 'style="transform:scaleX(-1)"' : ''}><rect x="12" y="46" width="48" height="36" rx="12" fill="#fff"/>${f}${thumb}</svg>`;
+}
+
+// ---------- Daten ----------
+const HANG = (o) => Object.assign({id:uid(), type:'hang', name:'Hang', L:'B1', R:'B7', grip:'halb', fingers:'vier', hang:7, repRest:3, reps:6, sets:3, setRest:120, restAfter:120, askWeight:true}, o);
+const PULL = (o) => Object.assign({id:uid(), type:'pullup', name:'Klimmzug', L:'B1', R:'B7', grip:'halb', fingers:'vier', reps:6, timeLimit:30, sets:1, setRest:60, restAfter:60, askWeight:true}, o);
+const T = (kind, n, pair) => { const [L, R] = pair.split('|'); return {kind, n, L, R}; };
+const MINUTE = (o) => Object.assign({id:uid(), type:'minute', name:'Minute', dur:60, tasks:[T('hang', 10, 'B1|B7')], reps:1, sets:1, setRest:0, restAfter:0, askWeight:false}, o);
+const EM = (n, ...tasks) => MINUTE({name:'Minute ' + n, tasks});
+const SL = 'A2|A5', JUG = 'J1|J6', ME = 'C1|C6', LE = 'B1|B7', P3 = 'B3|B5', P2 = 'B2|B6', FS = 'M|M', SE = 'A1|A6';
+
+const TEMPLATES = [
+  {id:'tpl-easy', name:'Easy Workout', level:'Anfänger', cat:'Kraft', author:'Vorlage', ex:[
+    EM(1, T('pull', 3, ME)), EM(2, T('hang', 10, SL), T('pull', 2, ME)), EM(3, T('hang', 15, ME), T('pull', 2, P3)),
+    EM(4, T('hang', 15, JUG), T('pull', 2, ME)), EM(5, T('hang', 10, SL), T('pull', 2, P3)), EM(6, T('hang', 10, ME), T('pull', 2, LE)),
+    EM(7, T('hang', 10, JUG), T('pull', 4, SL), T('hang', 5, SL)), EM(8, T('pull', 3, ME), T('hang', 10, ME)),
+    EM(9, T('pull', 3, JUG), T('hang', 15, JUG)), EM(10, T('max', 0, SL))]},
+  {id:'tpl-medium', name:'Medium Workout', level:'Mittel', cat:'Kraft', author:'Vorlage', ex:[
+    EM(1, T('pull', 3, ME)), EM(2, T('hang', 10, SL), T('pull', 3, ME)), EM(3, T('hang', 15, SE), T('pull', 2, P3)),
+    EM(4, T('hang', 20, JUG), T('pull', 3, ME)), EM(5, T('hang', 20, SL), T('pull', 3, P3)), EM(6, T('hang', 10, ME), T('pull', 2, SE)),
+    EM(7, T('hang', 15, JUG), T('pull', 4, SL), T('hang', 5, SL)), EM(8, T('pull', 5, ME), T('hang', 10, ME)),
+    EM(9, T('pull', 3, JUG), T('hang', 30, JUG)), EM(10, T('max', 0, SL))]},
+  {id:'tpl-hard', name:'Hard Workout', level:'Fortgeschritten', cat:'Kraft', author:'Vorlage', ex:[
+    EM(1, T('pull', 6, SL)), EM(2, T('hang', 20, ME), T('pull', 3, JUG)), EM(3, T('hang', 20, SE), T('pull', 3, P3)),
+    EM(4, T('hang', 25, SL), T('pull', 5, LE)), EM(5, T('hang', 25, LE), T('pull', 3, ME)), EM(6, T('hang', 30, SL), T('pull', 5, SE)),
+    EM(7, T('hang', 20, LE), T('pull', 3, P2)), EM(8, T('hang', 20, ME), T('pull', 3, P2)),
+    EM(9, T('hang', 15, FS), T('pull', 3, JUG)), EM(10, T('max', 0, SL))]},
+  {id:'tpl-warm', name:'Aufwärmen am Board', level:'Anfänger', cat:'Aufwärmen', author:'Vorlage', ex:[
+    HANG({name:'Henkel-Hang', L:'A1', R:'A6', grip:'offen', hang:10, repRest:10, reps:3, sets:2, setRest:30, restAfter:60, askWeight:false}),
+    HANG({name:'Große Leiste', grip:'offen', hang:7, repRest:3, reps:5, sets:2, setRest:60, restAfter:60, askWeight:false})]},
+  {id:'tpl-max', name:'Max Hangs 10 s', level:'Fortgeschritten', cat:'Kraft', author:'Vorlage', ex:[
+    HANG({name:'Max Hang', hang:10, repRest:0, reps:1, sets:5, setRest:180, restAfter:0, askWeight:true})]},
+  {id:'tpl-rep', name:'Repeaters 7/3', level:'Mittel', cat:'Kraftausdauer', author:'Vorlage', ex:[
+    HANG({name:'Repeater', L:'C1', R:'C6', hang:7, repRest:3, reps:6, sets:6, setRest:180, restAfter:0, askWeight:false})]}
+];
+const SEED = [{id:'aron-anfaenger', name:'Aron‘s Anfängertraining', level:'Anfänger', cat:'Kraft', ex:[
+  PULL({reps:6, timeLimit:20, sets:1, restAfter:45}),
+  HANG({reps:5, hang:7, repRest:3, sets:3, setRest:60, restAfter:60, askWeight:false}),
+  PULL({reps:6, timeLimit:20, sets:1, restAfter:45, askWeight:false}),
+  HANG({reps:5, hang:7, repRest:3, sets:2, setRest:60, restAfter:0, askWeight:false})]}];
+
+let W = store.get('workouts', null) || SEED;
+let HIST = store.get('history', []);
+let S = Object.assign({name:'Lacho', bw:70, countdown:3, sound:true, voice:true, lastW:{},
+  quick:HANG({name:'Timer', sets:3, askWeight:false, restAfter:0})}, store.get('settings', {}));
+const saveW = () => store.set('workouts', W);
+const saveH = () => store.set('history', HIST);
+const saveS = () => store.set('settings', S);
+
+const exTitle = e => e.type === 'minute' ? e.name : `${e.name} X ${e.reps}`;
+const exWork = e => e.type === 'minute' ? e.dur : e.type === 'pullup' ? e.timeLimit : e.reps * e.hang + (e.reps - 1) * e.repRest;
+const wSecs = w => w.ex.reduce((a, e, i) => a + (e.type === 'minute' ? e.dur + (i && w.ex[i - 1].type === 'minute' ? 0 : S.countdown) : e.sets * (exWork(e) + S.countdown) + (e.sets - 1) * e.setRest + (i < w.ex.length - 1 ? e.restAfter : 0)), 0);
+const exSummary = e => e.type === 'minute' ? `${human(e.dur)} · ${e.tasks.map(taskText).join(' → ')}` : e.type === 'pullup'
+  ? `${e.reps} Wdh. in max. ${e.timeLimit} s · ${e.sets} ${e.sets > 1 ? 'Sätze' : 'Satz'}${e.sets > 1 ? ' · ' + human(e.setRest) + ' Pause' : ''}`
+  : `${e.hang} s an / ${e.repRest} s aus × ${e.reps} · ${e.sets} ${e.sets > 1 ? 'Sätze' : 'Satz'}${e.sets > 1 ? ' · ' + human(e.setRest) + ' Pause' : ''}`;
+const findW = id => W.find(w => w.id === id) || TEMPLATES.find(w => w.id === id);
+
+// ---------- UI-Zustand ----------
+const V = {tab:'train', sub:'meine', edit:null, editId:null, exi:null, hand:'L', menu:null, open:{}};
+const app = document.getElementById('app');
+
+const ICON = {
+  train:'<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 27c2-6 3-12 6-17 2-3 6-5 8-3 1 2-1 4-3 5l-2 4c3-1 7-1 9 2 2 3 1 7-3 9H5z"/></svg>',
+  timer:'<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="16" cy="18" r="11"/><path d="M16 11v7M13 3h6M25 8l2-2"/></svg>',
+  hist:'<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 27h24M8 23V15M14 23V8M20 23v-6M26 23V11"/></svg>',
+  cal:'<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="4" y="6" width="24" height="22" rx="3"/><path d="M4 13h24M10 3v6M22 3v6"/></svg>',
+  prof:'<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="16" cy="11" r="6"/><path d="M5 29c1-7 6-10 11-10s10 3 11 10"/></svg>'
+};
+function nav() {
+  const b = (k, l) => `<button class="${V.tab === k ? 'on' : ''}" data-a="tab" data-v="${k}">${ICON[k]}<span>${l}</span></button>`;
+  return `<nav class="nav">${b('train', 'Trainings')}${b('cal', 'Kalender')}${b('timer', 'Timer')}${b('hist', 'Verlauf')}${b('prof', 'Profil')}</nav>`;
+}
+
+function render() {
+  if (V.edit) { app.innerHTML = V.exi != null ? exEditView() : editView(); return; }
+  let h = '';
+  if (V.tab === 'train') h = listView();
+  else if (V.tab === 'cal') h = calView();
+  else if (V.tab === 'timer') h = timerView();
+  else if (V.tab === 'hist') h = histView();
+  else h = profView();
+  app.innerHTML = h + nav() + (V.menu ? menuView() : '');
+}
+
+function card(w, mine) {
+  const e = exHolds(w.ex[0] || {});
+  const author = mine ? S.name : w.author;
+  const ini = (author || '?').slice(0, 2).toUpperCase();
+  const grips = w.ex.every(x => x.type === 'minute') ? 'Jede Minute neu, ohne Pause' : [...new Set(w.ex.filter(x => x.grip).map(x => x.grip))].map(g => GRIPS[g].split(' (')[0]).join(', ');
+  return `<div class="card">
+  <div class="card-top"><div class="avatar">${esc(ini)}</div><div class="who">${esc(author)}</div><button class="dots" data-a="menu" data-id="${w.id}" aria-label="Optionen">•••</button></div>
+  <button class="media" data-a="start" data-id="${w.id}">${boardSVG(e.L, e.R)}<span class="chip">💪 ${esc(w.cat)}</span></button>
+  <div class="info"><div><h3 data-a="start" data-id="${w.id}">${esc(w.name)}</h3><span class="level ${esc(String(w.level).toLowerCase())}">${esc(w.level)}</span></div>
+  <div style="text-align:right"><div class="dur">⏱ <b>${Math.max(1, Math.round(wSecs(w) / 60))}</b> Min</div><div class="note" style="margin-top:8px">${esc(grips)}</div></div></div></div>`;
+}
+function listView() {
+  const mine = V.sub === 'meine';
+  const list = mine ? W : TEMPLATES;
+  return `<div class="page"><div class="head"><h1>Trainingseinheiten</h1></div>${todayBanner()}
+  <div class="tabs"><button class="${!mine ? 'on' : ''}" data-a="sub" data-v="vorlagen">Vorlagen</button><button class="${mine ? 'on' : ''}" data-a="sub" data-v="meine">Meine</button></div>
+  ${list.length ? list.map(w => card(w, mine)).join('') : '<div class="empty">Noch keine eigenen Trainings.<br>Tippe auf + oder kopiere eine Vorlage.</div>'}
+  </div><button class="fab" data-a="new" aria-label="Neues Training">+</button>`;
+}
+function menuView() {
+  const w = findW(V.menu), mine = W.includes(w);
+  return `<div class="sheet-bg" data-a="menuclose"><div class="sheet"><h4>${esc(w.name)}</h4>
+  <button data-a="start" data-id="${w.id}">Training starten</button>
+  ${mine ? `<button data-a="edit" data-id="${w.id}">Bearbeiten</button>` : ''}
+  <button data-a="dup" data-id="${w.id}">${mine ? 'Duplizieren' : 'In „Meine“ kopieren'}</button>
+  ${mine ? `<button class="red" data-a="del" data-id="${w.id}">Löschen</button>` : ''}
+  <button data-a="menuclose">Abbrechen</button></div></div>`;
+}
+
+// ----- Editor -----
+function editView() {
+  const w = V.edit;
+  const opt = (arr, v) => arr.map(x => `<option${x === v ? ' selected' : ''}>${x}</option>`).join('');
+  return `<div class="page"><div class="head"><button class="l link" data-a="editcancel">Abbrechen</button><h1>Training</h1><button class="r pill" data-a="editsave">Speichern</button></div>
+  <div class="sec"><input class="txt" data-w="name" value="${esc(w.name)}" placeholder="Name des Trainings"></div>
+  <div class="sec"><div class="field"><label>Level</label><select class="sel" data-w="level">${opt(['Anfänger', 'Mittel', 'Fortgeschritten'], w.level)}</select></div>
+  <div class="field"><label>Kategorie</label><select class="sel" data-w="cat">${opt(['Kraft', 'Kraftausdauer', 'Ausdauer', 'Aufwärmen', 'Technik'], w.cat)}</select></div>
+  <div class="field"><label>Dauer (geschätzt)</label><b>${human(wSecs(w))}</b></div></div>
+  <div class="sec"><h2>Übungen · ${w.ex.reduce((a, e) => a + e.sets, 0)} Sätze</h2>
+  ${w.ex.map((e, i) => `<div class="exrow"><div class="mini" data-a="exopen" data-i="${i}">${e.type === 'minute' ? boardSVG(null, null, false, taskMarks(e)) : boardSVG(e.L, e.R)}</div>
+    <div class="tx" data-a="exopen" data-i="${i}"><b>${i + 1}. ${esc(exTitle(e))}</b><small>${exSummary(e)}</small>
+    ${e.type === 'minute' ? '' : `<small>${esc(holdsText(e))} · ${GRIPS[e.grip].split(' (')[0]}, ${FINGERS[e.fingers]}${i < w.ex.length - 1 && e.restAfter ? ' · danach ' + human(e.restAfter) + ' Pause' : ''}</small>`}</div>
+    <div class="acts"><button class="ib" data-a="exup" data-i="${i}" aria-label="Nach oben">↑</button><button class="ib" data-a="exdown" data-i="${i}" aria-label="Nach unten">↓</button><button class="ib" data-a="excopy" data-i="${i}" aria-label="Duplizieren">⧉</button></div></div>`).join('')}
+  <div class="addrow"><button class="btn ghost" data-a="exadd" data-v="hang">+ Hang</button><button class="btn ghost" data-a="exadd" data-v="pullup">+ Klimmzug</button><button class="btn ghost" data-a="exadd" data-v="minute">+ Minute</button></div></div></div>`;
+}
+function numField(t, k, label, unit, min = 0) {
+  const o = t === 'quick' ? S.quick : V.edit.ex[V.exi];
+  return `<div class="field"><label>${label}</label><div class="stp"><button data-a="stp" data-t="${t}" data-k="${k}" data-d="-1">−</button><input type="number" inputmode="numeric" min="${min}" data-t="${t}" data-num="${k}" value="${o[k]}"><button data-a="stp" data-t="${t}" data-k="${k}" data-d="1">+</button><span>${unit}</span></div></div>`;
+}
+const STEP = {hang:1, repRest:1, reps:1, sets:1, setRest:15, restAfter:15, timeLimit:5, dur:5};
+const MIN = {hang:1, reps:1, sets:1, timeLimit:5, dur:10};
+function holdPicker(t, e) {
+  return `<div class="boardbox"><div class="seg"><button class="${V.hand === 'L' ? 'on' : ''}" data-a="hand" data-v="L">Linke Hand</button><button class="${V.hand === 'R' ? 'on' : ''}" data-a="hand" data-v="R">Rechte Hand</button></div>
+  <div data-pick="${t}">${boardSVG(e.L, e.R, true)}</div><div class="hint">${esc(holdsText(e))}<br>Griff antippen = ${V.hand === 'L' ? 'linke' : 'rechte'} Hand · nochmal tippen = entfernen</div></div>`;
+}
+function gripFields(t, e) {
+  return `<div class="field"><label>Griffart</label><select class="sel" data-t="${t}" data-sel="grip">${Object.entries(GRIPS).map(([k, v]) => `<option value="${k}"${k === e.grip ? ' selected' : ''}>${v}</option>`).join('')}</select></div>
+  <div class="field"><label>Finger</label><select class="sel" data-t="${t}" data-sel="fingers">${Object.entries(FINGERS).map(([k, v]) => `<option value="${k}"${k === e.fingers ? ' selected' : ''}>${v}</option>`).join('')}</select></div>`;
+}
+function exEditView() {
+  const e = V.edit.ex[V.exi], last = V.exi === V.edit.ex.length - 1;
+  if (e.type === 'minute') return minuteEditView(e);
+  const hang = e.type === 'hang';
+  return `<div class="page"><div class="head"><button class="l link" data-a="exback">‹ Zurück</button><h1>Übung ${V.exi + 1}</h1><button class="r pill" data-a="exback">Fertig</button></div>
+  <div class="sec"><input class="txt" data-t="ex" data-str="name" value="${esc(e.name)}" placeholder="Name der Übung"></div>
+  <div class="sec"><div class="seg"><button class="${hang ? 'on' : ''}" data-a="extype" data-v="hang">Hang</button><button class="${!hang ? 'on' : ''}" data-a="extype" data-v="pullup">Klimmzug</button><button data-a="extype" data-v="minute">Minute</button></div></div>
+  <div class="sec"><h2>Griff am Beastmaker 1000</h2>${holdPicker('ex', e)}${gripFields('ex', e)}</div>
+  <div class="sec"><h2>Ablauf</h2>
+  ${hang ? numField('ex', 'hang', 'Hangzeit', 's', 1) + numField('ex', 'repRest', 'Pause zwischen Wdh.', 's') + numField('ex', 'reps', 'Wiederholungen', '×', 1)
+         : numField('ex', 'reps', 'Wiederholungen (Ziel)', '×', 1) + numField('ex', 'timeLimit', 'Zeitlimit', 's', 5)}
+  ${numField('ex', 'sets', 'Sätze', '×', 1)}${numField('ex', 'setRest', 'Pause zwischen Sätzen', 's')}
+  ${last ? '' : numField('ex', 'restAfter', 'Pause nach der Übung', 's')}
+  <div class="field"><label>Zusatzgewicht abfragen</label><button class="toggle ${e.askWeight ? 'on' : ''}" data-a="exweight" aria-label="Zusatzgewicht abfragen"></button></div>
+  <div class="note">Dauer dieser Übung: ${human(e.sets * (exWork(e) + S.countdown) + (e.sets - 1) * e.setRest)}</div></div>
+  <div class="sec"><button class="btn danger" data-a="exdel">Übung löschen</button></div></div>`;
+}
+
+function minuteEditView(e) {
+  const kinds = {pull:'Klimmzüge', hang:'Hang (s)', max:'Max Hang'};
+  return `<div class="page"><div class="head"><button class="l link" data-a="exback">‹ Zurück</button><h1>Übung ${V.exi + 1}</h1><button class="r pill" data-a="exback">Fertig</button></div>
+  <div class="sec"><input class="txt" data-t="ex" data-str="name" value="${esc(e.name)}" placeholder="Name, z. B. Minute 3"></div>
+  <div class="sec"><div class="seg"><button data-a="extype" data-v="hang">Hang</button><button data-a="extype" data-v="pullup">Klimmzug</button><button class="on" data-a="extype" data-v="minute">Minute</button></div>
+  <div class="note">Alle Aufgaben laufen innerhalb der Zeit; danach startet sofort die nächste Übung, ohne Pause.</div></div>
+  <div class="sec"><h2>Aufgaben</h2><div class="boardbox">${boardSVG(null, null, false, taskMarks(e))}</div>
+  ${e.tasks.map((t, i) => `<div class="task-ed"><i style="background:${TCOL[i % 3]}"></i>
+    <select class="sel" data-task="${i}" data-tk="kind">${Object.entries(kinds).map(([k, v]) => `<option value="${k}"${k === t.kind ? ' selected' : ''}>${v}</option>`).join('')}</select>
+    ${t.kind === 'max' ? '' : `<input type="number" inputmode="numeric" class="tn" data-task="${i}" data-tk="n" value="${t.n}">`}
+    <select class="sel" data-task="${i}" data-tk="pair">${PAIRS.map(p => `<option value="${p}"${p === t.L + '|' + t.R ? ' selected' : ''}>${pairName(p.split('|')[0])}</option>`).join('')}</select>
+    <button class="ib" data-a="taskdel" data-i="${i}" aria-label="Aufgabe löschen">✕</button></div>`).join('')}
+  <div class="addrow" style="margin-top:12px"><button class="btn ghost" data-a="taskadd">+ Aufgabe</button></div></div>
+  <div class="sec">${numField('ex', 'dur', 'Zeit für diese Übung', 's', 10)}</div>
+  <div class="sec"><button class="btn danger" data-a="exdel">Übung löschen</button></div></div>`;
+}
+
+// ----- Timer / Verlauf / Profil -----
+function timerView() {
+  const q = S.quick;
+  return `<div class="page"><div class="head"><h1>Schnell-Timer</h1></div>
+  <div class="note" style="text-align:center">Ein einzelner Hang-Block ohne gespeichertes Training – ideal für Repeaters oder Max Hangs.</div>
+  <div class="sec">${holdPicker('quick', q)}${gripFields('quick', q)}</div>
+  <div class="sec">${numField('quick', 'hang', 'Hangzeit', 's', 1)}${numField('quick', 'repRest', 'Pause zwischen Wdh.', 's')}${numField('quick', 'reps', 'Wiederholungen', '×', 1)}${numField('quick', 'sets', 'Sätze', '×', 1)}${numField('quick', 'setRest', 'Pause zwischen Sätzen', 's')}
+  <div class="field"><label>Zusatzgewicht abfragen</label><button class="toggle ${q.askWeight ? 'on' : ''}" data-a="qweight" aria-label="Zusatzgewicht abfragen"></button></div></div>
+  <div class="sec"><button class="btn" data-a="quickstart">Timer starten · ${human(wSecs({ex:[q]}))}</button></div></div>`;
+}
+// ----- Challenge-Kalender -----
+// Plan laut program.pdf: Training an Tag 2, 4 und 7 jeder Woche; E/M/H = Easy/Medium/Hard
+const PLAN = [
+  [['E'], ['E'], ['E']],
+  [['M'], ['E', 'M'], ['M']],
+  [['E', 'M'], ['M', 'M'], ['M']],
+  [['M', 'M'], ['H'], ['M']],
+  [['E', 'M'], ['E', 'H'], ['H']],
+  [['M'], ['E', 'M'], ['M']],
+  [['E'], ['M'], ['E']]];
+const PLAN_DAYS = [2, 4, 7];
+const PID = {E:'tpl-easy', M:'tpl-medium', H:'tpl-hard'};
+const LV = {E:'Easy', M:'Medium', H:'Hard'};
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const pday = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const fmtDay = k => pday(k).toLocaleDateString('de-DE', {weekday:'long', day:'numeric', month:'long'});
+const planOn = k => S.challenge && S.challenge.sessions.find(x => x.date === k);
+const planDone = k => HIST.some(h => h.plan === k && !h.partial);
+// Trainings außerhalb des Plans an einem Tag (nach Datum der Durchführung)
+const LVK = {'Anfänger':'E', 'Mittel':'M', 'Fortgeschritten':'H'};
+const freeOn = k => HIST.filter(h => !h.plan && ymd(new Date(h.date)) === k);
+const freeLv = h => { const w = findW(h.wid); return LVK[h.level || (w && w.level)] || 'X'; };
+function makePlan(start) {
+  const d0 = pday(start);
+  return PLAN.flatMap((wk, wi) => wk.map((lv, di) => ({date:ymd(addDays(d0, wi * 7 + PLAN_DAYS[di] - 1)), lv, week:wi + 1})));
+}
+// Mehrere Einheiten eines Tages werden zu einem durchgehenden Training verbunden
+function planWorkout(p) {
+  const ws = p.lv.map(k => findW(PID[k]));
+  if (ws.length === 1) return Object.assign(clone(ws[0]), {id:'plan-' + p.date});
+  let n = 0;
+  return {id:'plan-' + p.date, name:p.lv.map(k => LV[k]).join(' + ') + ' Workout', level:ws[ws.length - 1].level, cat:'Kraft',
+    ex:ws.flatMap(w => clone(w.ex)).map(e => Object.assign(e, {id:uid(), name:e.type === 'minute' ? 'Minute ' + (++n) : e.name}))};
+}
+const planLabel = p => p.lv.map(k => LV[k]).join(' + ');
+const planMin = p => Math.round(wSecs(planWorkout(p)) / 60);
+// Kalenderdatei mit allen Challenge-Terminen um 18 Uhr; die Erinnerung kommt vom Handy-Kalender
+function challengeICS() {
+  const t = new Date(), stamp = `${ymd(t).replace(/-/g, '')}T${String(t.getHours()).padStart(2, '0')}${String(t.getMinutes()).padStart(2, '0')}00`;
+  const ev = S.challenge.sessions.map(p => {
+    const d = p.date.replace(/-/g, ''), end = 18 * 60 + planMin(p);
+    return ['BEGIN:VEVENT', `UID:fingerboard-${S.challenge.start}-${p.date}`, `DTSTAMP:${stamp}`,
+      `DTSTART:${d}T180000`, `DTEND:${d}T${String(Math.floor(end / 60)).padStart(2, '0')}${String(end % 60).padStart(2, '0')}00`,
+      `SUMMARY:Fingerboard: ${planLabel(p)}`, `DESCRIPTION:Challenge Woche ${p.week} · ${planMin(p)} Min am Stück`,
+      'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:Zeit fürs Fingerboard: ${planLabel(p)}`, 'TRIGGER:PT0M', 'END:VALARM', 'END:VEVENT'].join('\r\n');
+  });
+  return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Fingerboard//Challenge//DE', 'CALSCALE:GREGORIAN', ...ev, 'END:VCALENDAR'].join('\r\n') + '\r\n';
+}
+function todayBanner() {
+  const p = planOn(ymd(new Date()));
+  if (!p || planDone(p.date)) return '';
+  return `<div class="banner"><div><b>Heute im Plan: ${planLabel(p)}</b>Woche ${p.week} · ${planMin(p)} Min am Stück</div><button data-a="planstart" data-d="${p.date}">Starten</button></div>`;
+}
+function calView() {
+  const c = S.challenge, today = ymd(new Date());
+  if (!c) return `<div class="page"><div class="head"><h1>Kalender</h1></div>
+    <div class="plan-card"><div class="pc-d">Trainingsplan</div><h3>Fingerboard-Challenge</h3>
+    <div class="note" style="color:#c9c8e8">${PLAN.length} Wochen mit je 3 Trainingstagen (Tag 2, 4 und 7 der Woche). Doppel-Einheiten werden automatisch zu einem Training ohne Pause verbunden.</div>
+    <div class="field" style="border-color:rgba(255,255,255,.15);margin-top:8px"><label>Tag 1 der Challenge</label><input type="date" class="sel" id="cstart" value="${today}"></div>
+    <button class="btn" data-a="chstart">Challenge starten</button></div>
+    <div class="sec"><h2>Plan</h2>${PLAN.map((wk, wi) => `<div class="field"><label>Woche ${wi + 1}</label><span>${wk.map(lv => lv.map(k => LV[k]).join(' + ')).join(' · ')}</span></div>`).join('')}</div></div>`;
+  if (!V.calSel) { const nx = c.sessions.find(x => x.date >= today && !planDone(x.date)); V.calSel = nx ? nx.date : today; }
+  if (!V.calMonth) V.calMonth = V.calSel.slice(0, 7);
+  const [y, m] = V.calMonth.split('-').map(Number), first = new Date(y, m - 1, 1);
+  const lead = (first.getDay() + 6) % 7, days = new Date(y, m, 0).getDate();
+  let cells = '';
+  for (let i = 0; i < Math.ceil((lead + days) / 7) * 7; i++) {
+    const d = addDays(first, i - lead), k = ymd(d), p = planOn(k), done = p && planDone(k), fr = freeOn(k);
+    const cls = ['cd', d.getMonth() !== m - 1 ? 'out' : '', p ? 'plan' : '', k === today ? 'today' : '', k === V.calSel ? 'sel' : '', done ? 'done' : '', p && !done && k < today ? 'miss' : ''].join(' ');
+    const dots = [...(p ? p.lv : []), ...fr.map(freeLv)];
+    cells += `<div class="${cls}${fr.length && !p ? ' plan' : ''}" ${p || fr.length ? `data-a="calsel" data-d="${k}"` : ''}><span class="num">${d.getDate()}</span>${dots.length ? `<span class="cdots">${dots.map(x => `<i class="lv-${x}"></i>`).join('')}</span>` : ''}${done ? '<span class="ok">✓</span>' : fr.length ? '<span class="ok free">✓</span>' : ''}</div>`;
+  }
+  const sel = planOn(V.calSel), selFree = freeOn(V.calSel), doneN = c.sessions.filter(x => planDone(x.date)).length;
+  const wk = Math.min(PLAN.length, Math.max(1, Math.floor((pday(today) - pday(c.start)) / 864e5 / 7) + 1));
+  const selCard = sel ? `<div class="plan-card"><div class="pc-d">${fmtDay(sel.date)} · Woche ${sel.week}</div><h3>${planLabel(sel)}${planDone(sel.date) ? ' ✓' : ''}</h3>
+    <div class="pc-list">${sel.lv.map(k => `<span class="lv-${k}">${LV[k]} Workout</span>`).join('')}</div>
+    <div class="note" style="color:#c9c8e8;margin-bottom:10px">${planMin(sel)} Min${sel.lv.length > 1 ? ' am Stück, ohne Pause dazwischen' : ''}</div>
+    <button class="btn" data-a="planstart" data-d="${sel.date}">${planDone(sel.date) ? 'Nochmal trainieren' : 'Training starten'}</button></div>`
+    : selFree.length ? '' : `<div class="note" style="text-align:center;margin-top:16px">${fmtDay(V.calSel)}: kein Training geplant.</div>`;
+  const freeCard = selFree.length ? `<div class="hist" style="cursor:default"><div class="t"><b>Freies Training</b><span>${sel ? '' : fmtDay(V.calSel)}</span></div>
+    ${selFree.map(h => `<small><i class="lv-${freeLv(h)}" style="display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px"></i>${esc(h.name)} · Hangtime ${human(h.hang)}${h.partial ? ' · abgebrochen' : ''}</small>`).join('<br>')}</div>` : '';
+  return `<div class="page"><div class="head"><h1>Kalender</h1></div>
+  <div class="sec" style="margin-top:12px"><div style="display:flex;justify-content:space-between;font-size:15px"><span>Woche ${wk} von ${PLAN.length}</span><span>${doneN} / ${c.sessions.length} Einheiten</span></div><div class="prog"><i style="width:${doneN / c.sessions.length * 100}%"></i></div></div>
+  <div class="cal-h"><button data-a="calmon" data-d="-1" aria-label="Voriger Monat">‹</button><b>${first.toLocaleDateString('de-DE', {month:'long', year:'numeric'})}</b><button data-a="calmon" data-d="1" aria-label="Nächster Monat">›</button></div>
+  <div class="cal">${['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map(x => `<div class="wd">${x}</div>`).join('')}${cells}</div>
+  <div class="cal-leg"><span><i class="lv-E"></i>Easy</span><span><i class="lv-M"></i>Medium</span><span><i class="lv-H"></i>Hard</span><span>✓ Plan erledigt</span><span style="color:#9c9ca8">✓ freies Training</span></div>
+  ${selCard}${freeCard}
+  <div class="sec"><h2>Erinnerung</h2><button class="btn ghost" data-a="chics">🔔 Termine in Handy-Kalender (18 Uhr)</button>
+  <div class="note">Lädt eine Kalenderdatei mit allen ${c.sessions.length} Trainingstagen um 18:00 inkl. Mitteilung. Auf dem iPhone öffnen und „Alle hinzufügen“ wählen.</div></div>
+  <div class="sec"><button class="btn danger" data-a="chstop">Challenge beenden</button></div></div>`;
+}
+
+function histView() {
+  const now = Date.now(), m30 = HIST.filter(h => now - h.date < 30 * 864e5);
+  const tot = HIST.reduce((a, h) => a + h.hang, 0);
+  return `<div class="page"><div class="head"><h1>Verlauf</h1></div>
+  <div class="stats"><div class="stat"><b>${m30.length}</b><span>Trainings (30 Tage)</span></div><div class="stat"><b>${human(m30.reduce((a, h) => a + h.hang, 0))}</b><span>Hangtime (30 Tage)</span></div><div class="stat"><b>${human(tot)}</b><span>Hangtime gesamt</span></div></div>
+  <div class="sec">${HIST.length ? HIST.map(h => {
+    const d = new Date(h.date), sets = h.ex.reduce((a, e) => a + e.sets.filter(s => s.sec > 0 || s.done).length, 0);
+    return `<div class="hist" data-a="hopen" data-id="${h.id}"><div class="t"><b>${esc(h.name)}</b><span>${d.toLocaleDateString('de-DE', {weekday:'short', day:'2-digit', month:'2-digit', year:'2-digit'})} ${d.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'})}</span></div>
+    <small>Hangtime ${human(h.hang)} · ${sets} Sätze · Dauer ${human(h.dur)}${h.partial ? ' · abgebrochen' : ''}</small>
+    ${V.open[h.id] ? `<div class="det">${h.ex.map(e => `<b>${esc(e.name)}</b><br>${e.sets.map((s, i) => `Satz ${i + 1}: ${s.done}/${s.target} Wdh.${s.w ? ` · ${s.w > 0 ? '+' : ''}${s.w} kg` : ''} · ${Math.round(s.sec)} s`).join('<br>')}`).join('<br>')}
+    <div style="margin-top:10px"><button class="ib" style="width:auto;padding:0 12px;color:#d22" data-a="hdel" data-id="${h.id}">Eintrag löschen</button></div></div>` : ''}</div>`;
+  }).join('') : '<div class="empty">Noch keine Trainings absolviert.</div>'}</div></div>`;
+}
+function profView() {
+  return `<div class="page"><div class="head"><h1>Profil</h1></div>
+  <div class="sec"><div class="field"><label>Name</label><input class="sel" style="text-align:right" data-s="name" value="${esc(S.name)}"></div>
+  <div class="field"><label>Körpergewicht</label><div class="stp"><button data-a="sstp" data-k="bw" data-d="-1">−</button><input type="number" inputmode="decimal" data-snum="bw" value="${S.bw}"><button data-a="sstp" data-k="bw" data-d="1">+</button><span>kg</span></div></div>
+  <div class="field"><label>Countdown vor jedem Satz</label><div class="stp"><button data-a="sstp" data-k="countdown" data-d="-1">−</button><input type="number" inputmode="numeric" data-snum="countdown" value="${S.countdown}"><button data-a="sstp" data-k="countdown" data-d="1">+</button><span>s</span></div></div>
+  <div class="field"><label>Signaltöne</label><button class="toggle ${S.sound ? 'on' : ''}" data-a="stog" data-k="sound" aria-label="Signaltöne"></button></div>
+  <div class="field"><label>Sprachansagen</label><button class="toggle ${S.voice ? 'on' : ''}" data-a="stog" data-k="voice" aria-label="Sprachansagen"></button></div></div>
+  <div class="sec"><h2>Daten</h2><div class="addrow"><button class="btn ghost" data-a="export">Sichern (Export)</button><button class="btn ghost" data-a="import">Wiederherstellen</button></div>
+  <input type="file" id="impf" accept="application/json" hidden>
+  <div class="note">Alle Trainings und der Verlauf werden nur auf diesem Gerät im Browser gespeichert. Mit „Sichern“ lädst du eine Backup-Datei herunter.</div></div>
+  <div class="note" style="text-align:center;margin-top:30px">Tipp: Für das Training das Handy quer halten. In Safari über „Teilen → Zum Home-Bildschirm“ als App installieren.</div></div>`;
+}
+
+// ---------- Events ----------
+const target = t => t === 'quick' ? S.quick : V.edit.ex[V.exi];
+const afterTarget = t => { if (t === 'quick') saveS(); };
+const A = {
+  chstart: () => { const v = document.getElementById('cstart').value || ymd(new Date());
+    S.challenge = {start:v, sessions:makePlan(v)}; saveS(); V.calSel = null; V.calMonth = null; render(); },
+  chstop: () => { if (confirm('Challenge beenden? Die Termine werden aus dem Kalender entfernt, dein Verlauf bleibt erhalten.')) { S.challenge = null; saveS(); V.calSel = null; V.calMonth = null; render(); } },
+  chics: () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([challengeICS()], {type:'text/calendar'})); a.download = 'fingerboard-challenge.ics'; a.click(); },
+  calsel: el => { V.calSel = el.dataset.d; render(); },
+  calmon: el => { const [y, m] = V.calMonth.split('-').map(Number); V.calMonth = ymd(new Date(y, m - 1 + (+el.dataset.d), 1)).slice(0, 7); render(); },
+  planstart: el => { const p = planOn(el.dataset.d); if (p) startWorkout(planWorkout(p), p.date); },
+  tab: el => { V.tab = el.dataset.v; V.menu = null; render(); scrollTo(0, 0); },
+  sub: el => { V.sub = el.dataset.v; render(); },
+  menu: el => { V.menu = el.dataset.id; render(); },
+  menuclose: (el, ev) => { if (ev.target === el) { V.menu = null; render(); } },
+  start: el => { V.menu = null; render(); startWorkout(findW(el.dataset.id)); },
+  new: () => { V.edit = {id:uid(), name:'Neues Training', level:'Anfänger', cat:'Kraft', ex:[HANG()]}; V.editId = null; V.menu = null; render(); scrollTo(0, 0); },
+  edit: el => { V.edit = clone(findW(el.dataset.id)); V.editId = el.dataset.id; V.menu = null; render(); scrollTo(0, 0); },
+  dup: el => { const w = clone(findW(el.dataset.id)); w.id = uid(); w.ex.forEach(e => e.id = uid()); if (W.find(x => x.name === w.name)) w.name += ' (Kopie)'; delete w.author; W.push(w); saveW(); V.menu = null; V.sub = 'meine'; render(); },
+  del: el => { const w = findW(el.dataset.id); if (confirm(`„${w.name}“ wirklich löschen?`)) { W = W.filter(x => x !== w); saveW(); } V.menu = null; render(); },
+  editcancel: () => { V.edit = null; render(); },
+  editsave: () => { const w = V.edit; if (!w.ex.length) return alert('Füge mindestens eine Übung hinzu.');
+    const i = W.findIndex(x => x.id === V.editId); if (i >= 0) W[i] = w; else W.push(w); saveW(); V.edit = null; V.sub = 'meine'; render(); },
+  exopen: el => { V.exi = +el.dataset.i; V.hand = 'L'; render(); scrollTo(0, 0); },
+  exback: () => { V.exi = null; render(); },
+  exadd: el => { const prev = V.edit.ex[V.edit.ex.length - 1], v = el.dataset.v;
+    const e = v === 'minute' ? MINUTE({name:'Minute ' + (V.edit.ex.filter(x => x.type === 'minute').length + 1)}) : v === 'pullup' ? PULL() : HANG();
+    if (prev && v !== 'minute' && prev.type !== 'minute') Object.assign(e, {L:prev.L, R:prev.R, grip:prev.grip, fingers:prev.fingers}); V.edit.ex.push(e); V.exi = V.edit.ex.length - 1; V.hand = 'L'; render(); scrollTo(0, 0); },
+  exup: el => { const i = +el.dataset.i, x = V.edit.ex; if (i > 0) [x[i - 1], x[i]] = [x[i], x[i - 1]]; render(); },
+  exdown: el => { const i = +el.dataset.i, x = V.edit.ex; if (i < x.length - 1) [x[i + 1], x[i]] = [x[i], x[i + 1]]; render(); },
+  excopy: el => { const i = +el.dataset.i, e = clone(V.edit.ex[i]); e.id = uid(); V.edit.ex.splice(i + 1, 0, e); render(); },
+  exdel: () => { if (confirm('Übung löschen?')) { V.edit.ex.splice(V.exi, 1); V.exi = null; render(); } },
+  extype: el => { const e = V.edit.ex[V.exi], t = el.dataset.v; if (e.type === t) return; const h = exHolds(e);
+    const n = t === 'minute' ? MINUTE({id:e.id, name:'Minute', tasks:[T('hang', 10, (h.L || 'B1') + '|' + (h.R || 'B7'))]})
+      : (t === 'pullup' ? PULL : HANG)({id:e.id, L:h.L || null, R:h.R || null, grip:e.grip || 'halb', fingers:e.fingers || 'vier', sets:e.sets, setRest:e.setRest, restAfter:e.restAfter, askWeight:e.askWeight});
+    V.edit.ex[V.exi] = n; render(); },
+  exweight: () => { const e = V.edit.ex[V.exi]; e.askWeight = !e.askWeight; render(); },
+  qweight: () => { S.quick.askWeight = !S.quick.askWeight; saveS(); render(); },
+  taskadd: () => { const x = V.edit.ex[V.exi].tasks, l = x[x.length - 1]; x.push(T('pull', 2, l ? l.L + '|' + l.R : 'B1|B7')); render(); },
+  taskdel: el => { V.edit.ex[V.exi].tasks.splice(+el.dataset.i, 1); render(); },
+  hand: el => { V.hand = el.dataset.v; render(); },
+  stp: el => { const o = target(el.dataset.t), k = el.dataset.k; o[k] = Math.max(MIN[k] ?? 0, (+o[k] || 0) + (+el.dataset.d) * (STEP[k] || 1)); afterTarget(el.dataset.t); render(); },
+  sstp: el => { const k = el.dataset.k; S[k] = Math.max(k === 'bw' ? 20 : 0, (+S[k] || 0) + (+el.dataset.d)); saveS(); render(); },
+  stog: el => { S[el.dataset.k] = !S[el.dataset.k]; saveS(); render(); },
+  quickstart: () => startWorkout({id:'quick', name:'Schnell-Timer', ex:[Object.assign(clone(S.quick), {restAfter:0})]}),
+  hopen: (el, ev) => { if (ev.target.closest('[data-a="hdel"]')) return; V.open[el.dataset.id] = !V.open[el.dataset.id]; render(); },
+  hdel: el => { if (confirm('Eintrag löschen?')) { HIST = HIST.filter(h => h.id !== el.dataset.id); saveH(); render(); } },
+  export: () => { const blob = new Blob([JSON.stringify({workouts:W, history:HIST, settings:S}, null, 1)], {type:'application/json'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `fingerboard-backup-${new Date().toISOString().slice(0, 10)}.json`; a.click(); },
+  import: () => document.getElementById('impf').click()
+};
+document.addEventListener('click', ev => {
+  const hold = ev.target.closest('[data-hold]'), pk = ev.target.closest('[data-pick]');
+  if (hold && pk) {
+    const o = target(pk.dataset.pick), k = hold.dataset.hold;
+    if (o[V.hand] === k) o[V.hand] = null; else { o[V.hand] = k; if (V.hand === 'L') V.hand = 'R'; }
+    afterTarget(pk.dataset.pick); render(); return;
+  }
+  const el = ev.target.closest('[data-a]');
+  if (!el) return;
+  const fn = A[el.dataset.a] || PA[el.dataset.a];
+  if (fn) fn(el, ev);
+});
+document.addEventListener('input', ev => {
+  const el = ev.target, d = el.dataset;
+  if (d.w) V.edit[d.w] = el.value;
+  else if (d.str) target(d.t)[d.str] = el.value;
+  else if (d.s) { S[d.s] = el.value; saveS(); }
+  else if (d.range != null) { P.dlgVal = +el.value; document.getElementById('dlgv').textContent = el.value; }
+});
+document.addEventListener('change', ev => {
+  const el = ev.target, d = el.dataset;
+  if (d.w) { V.edit[d.w] = el.value; render(); }
+  else if (d.task != null) {
+    const t = V.edit.ex[V.exi].tasks[+d.task];
+    if (d.tk === 'pair') [t.L, t.R] = el.value.split('|');
+    else if (d.tk === 'n') t.n = Math.max(1, Math.round(+el.value || 0));
+    else { t.kind = el.value; if (!t.n) t.n = el.value === 'pull' ? 2 : 10; }
+    render();
+  }
+  else if (d.sel) { target(d.t)[d.sel] = el.value; afterTarget(d.t); render(); }
+  else if (d.num) { const o = target(d.t); o[d.num] = Math.max(MIN[d.num] ?? 0, Math.round(+el.value || 0)); afterTarget(d.t); render(); }
+  else if (d.snum) { S[d.snum] = Math.max(0, +el.value || 0); saveS(); render(); }
+  else if (el.id === 'impf' && el.files[0]) {
+    el.files[0].text().then(t => { const j = JSON.parse(t); if (!confirm('Aktuelle Daten durch das Backup ersetzen?')) return;
+      if (j.workouts) { W = j.workouts; saveW(); } if (j.history) { HIST = j.history; saveH(); } if (j.settings) { S = Object.assign(S, j.settings); saveS(); } render(); })
+      .catch(() => alert('Die Datei konnte nicht gelesen werden.'));
+  }
+});
+
+// ---------- Ton, Sprache, Display an ----------
+let AC;
+function audio() { if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch {} } if (AC && AC.state === 'suspended') AC.resume(); return AC; }
+function beep(f = 880, d = .12, v = .3) {
+  if (!S.sound) return; const a = audio(); if (!a) return;
+  const o = a.createOscillator(), g = a.createGain(); o.type = 'sine'; o.frequency.value = f;
+  g.gain.setValueAtTime(v, a.currentTime); g.gain.exponentialRampToValueAtTime(.001, a.currentTime + d);
+  o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + d + .05);
+}
+function say(t) {
+  if (!S.sound || !S.voice || !window.speechSynthesis) return;
+  // "Hang" würde deutsch falsch ausgesprochen, deshalb wird "Hängen" angesagt
+  t = t.replace(/\bHang\b/g, 'Hängen');
+  try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = 'de-DE'; u.rate = 1.05; speechSynthesis.speak(u); } catch {}
+}
+let WL = null;
+async function wakeLock(on) {
+  try { if (on) { if (navigator.wakeLock && !WL) { WL = await navigator.wakeLock.request('screen'); WL.addEventListener('release', () => WL = null); } } else if (WL) { await WL.release(); WL = null; } } catch {}
+}
+document.addEventListener('visibilitychange', () => { if (P && document.visibilityState === 'visible') wakeLock(true); });
+
+// ---------- Player ----------
+let P = null;
+const proot = document.getElementById('player');
+
+function buildSteps(w) {
+  const steps = []; let g = 0;
+  w.ex.forEach((e, ei) => {
+    if (e.type === 'minute') {
+      // Minuten laufen ohne Pause direkt nacheinander; nur vor dem ersten Block bereit machen + Countdown
+      if (!ei || w.ex[ei - 1].type !== 'minute') steps.push({k:'ready', ei, g:g + 1}, {k:'count', ei, s:1, g:g + 1});
+      g++; steps.push({k:'work', ei, s:1, g, dur:e.dur});
+      return;
+    }
+    if (e.askWeight) steps.push({k:'weight', ei, g:g + 1});
+    steps.push({k:'ready', ei, g:g + 1});
+    for (let s = 1; s <= e.sets; s++) {
+      g++;
+      steps.push({k:'count', ei, s, g});
+      if (e.type === 'pullup') steps.push({k:'work', ei, s, g, dur:e.timeLimit});
+      else for (let r = 1; r <= e.reps; r++) {
+        steps.push({k:'work', ei, s, g, r, dur:e.hang});
+        if (r < e.reps && e.repRest > 0) steps.push({k:'repRest', ei, s, g, r, dur:e.repRest});
+      }
+      if (s < e.sets) steps.push({k:'rest', ei, s, g, dur:e.setRest, next:ei});
+      else if (ei < w.ex.length - 1 && e.restAfter > 0) steps.push({k:'rest', ei, s, g, dur:e.restAfter, next:ei + 1});
+    }
+  });
+  steps.push({k:'done', g});
+  return {steps, total:g};
+}
+function startWorkout(w, plan) {
+  audio();
+  const {steps, total} = buildSteps(w);
+  P = {w, steps, total, minTotal:w.ex.reduce((a, e) => a + (e.type === 'minute' ? e.dur : 0), 0), i:0, remain:0, endAt:0, paused:false, iv:null, dlg:null, dlgVal:0, last:0, start:Date.now(),
+       weights:w.ex.map(e => S.lastW[e.id] ?? 0),
+       sess:{id:uid(), date:Date.now(), wid:w.id, name:w.name, level:w.level || null, plan:plan || null, hang:0, dur:0,
+             ex:w.ex.map(e => ({name:exTitle(e), sets:Array.from({length:e.sets}, () => ({w:0, target:e.reps, done:0, sec:0}))}))}};
+  wakeLock(true);
+  enter(0);
+}
+const cur = () => P.steps[P.i];
+function enter(i) {
+  clearInterval(P.iv); P.iv = null;
+  P.i = Math.max(0, Math.min(i, P.steps.length - 1));
+  const st = cur(), e = P.w.ex[st.ei];
+  P.remain = st.k === 'count' ? S.countdown : (st.dur || 0);
+  P.lastWhole = Math.ceil(P.remain);
+  if (st.k === 'count' && P.remain <= 0) return enter(P.i + 1);
+  if (st.k === 'work') { beep(1320, .45); if (e.type === 'minute') say(e.name + '. ' + e.tasks.map(taskSay).join('. Dann ')); else if (st.r === 1 || !st.r) say('Los'); }
+  if (st.k === 'repRest') beep(520, .3);
+  if (st.k === 'rest') { beep(520, .5); say(st.next !== st.ei ? 'Pause. Nächste Übung: ' + exTitle(P.w.ex[st.next]) : 'Pause'); }
+  if (st.k === 'ready') say('Mach dich bereit für ' + exTitle(e));
+  if (st.k === 'done') finish(false);
+  if (st.k === 'count' || st.dur) run();
+  renderPlayer();
+}
+function run() {
+  if (P.paused) return;
+  P.endAt = performance.now() + P.remain * 1000; P.last = performance.now();
+  clearInterval(P.iv); P.iv = setInterval(tick, 100);
+}
+function tick() {
+  const st = cur(), now = performance.now();
+  P.remain = (P.endAt - now) / 1000;
+  const isMin = P.w.ex[st.ei] && P.w.ex[st.ei].type === 'minute';
+  if (st.k === 'work' && !isMin) { const dt = Math.min(now - P.last, 1000) / 1000; P.sess.hang += dt; P.sess.ex[st.ei].sets[st.s - 1].sec += dt; }
+  P.last = now;
+  const whole = Math.ceil(P.remain);
+  if (whole !== P.lastWhole) { P.lastWhole = whole; if (whole > 0 && whole <= 3 && (st.k !== 'work' || isMin)) beep(880, .1); }
+  if (P.remain <= 0) { leaveWork(false); return enter(P.i + 1); }
+  updateLive();
+}
+// beim Verlassen eines Arbeitsschritts Ergebnis festhalten
+function leaveWork(early) {
+  const st = cur(); if (st.k !== 'work') return;
+  const e = P.w.ex[st.ei], rec = P.sess.ex[st.ei].sets[st.s - 1];
+  rec.w = P.weights[st.ei];
+  if (e.type === 'minute') {
+    if (!early) { const hs = e.tasks.reduce((a, t) => a + (t.kind === 'hang' ? t.n : 0), 0); rec.done = 1; rec.sec = hs; P.sess.hang += hs; }
+    return;
+  }
+  if (e.type === 'pullup') { P.dlg = {ei:st.ei, s:st.s}; P.dlgVal = e.reps; }
+  else { if (!early) rec.done++; if (!early) beep(440, .5); }
+}
+function updateLive() {
+  const st = cur();
+  const f = document.getElementById('pfill'), t = document.getElementById('ptime'), b = document.getElementById('pbig'), h = document.getElementById('pht');
+  const dur = st.k === 'count' ? S.countdown : st.dur;
+  if (f && dur) f.style.width = Math.min(100, (1 - P.remain / dur) * 100) + '%';
+  if (t) t.textContent = mmss(P.remain);
+  if (b) b.textContent = Math.max(1, Math.ceil(P.remain));
+  if (h) h.textContent = Math.round(P.sess.hang) + 's';
+  const tot = document.getElementById('ptot');
+  if (tot) tot.textContent = mmss(Math.floor(P.minBase + st.dur - P.remain));
+}
+const PI = {
+  x:'<svg viewBox="0 0 24 24" stroke="#fff" stroke-width="2"><path d="M3 3l18 18M21 3L3 21"/></svg>',
+  snd:'<svg viewBox="0 0 48 48" fill="#fff"><path d="M6 17h9l12-9v32l-12-9H6z"/><path d="M33 17c3 4 3 10 0 14M38 13c5 6 5 16 0 22" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>',
+  mute:'<svg viewBox="0 0 48 48" fill="#fff"><path d="M6 17h9l12-9v32l-12-9H6z"/><path d="M33 19l10 10M43 19L33 29" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>',
+  prev:'<svg viewBox="0 0 48 48" fill="#fff"><rect x="6" y="6" width="5" height="36"/><path d="M42 6v36L13 24z"/></svg>',
+  next:'<svg viewBox="0 0 48 48" fill="#fff"><rect x="37" y="6" width="5" height="36"/><path d="M6 6v36l29-18z"/></svg>',
+  pause:'<svg viewBox="0 0 48 48" fill="#fff"><rect x="10" y="6" width="5" height="36"/><rect x="33" y="6" width="5" height="36"/></svg>',
+  play:'<svg viewBox="0 0 48 48" fill="#fff"><path d="M10 5v38l32-19z"/></svg>',
+  minus:'<svg viewBox="0 0 24 24" stroke="#fff" stroke-width="2.4"><path d="M2 12h20"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" stroke="#fff" stroke-width="2.4"><path d="M2 12h20M12 2v20"/></svg>'
+};
+function renderPlayer() {
+  if (!P) { proot.innerHTML = ''; return; }
+  const st = cur(), e = P.w.ex[st.ei];
+  const phase = st.k === 'work' ? 'work' : (st.k === 'rest' || st.k === 'repRest') ? 'rest' : '';
+  const ctrl = (show) => show ? `<div class="p-ctrl"><button data-a="p-snd" aria-label="Ton">${S.sound ? PI.snd : PI.mute}</button><button data-a="p-prev" aria-label="Zurück" ${P.i === 0 ? 'disabled' : ''}>${PI.prev}</button><button data-a="p-pause" aria-label="Pause">${st.k === 'ready' || P.paused ? PI.play : PI.pause}</button><button data-a="p-next" aria-label="Weiter">${PI.next}</button></div>` : '<div></div>';
+  const ht = `<div class="ht"><b id="pht">${Math.round(P.sess.hang)}s</b><span>Hangtime</span></div>`;
+  const gset = st.k === 'rest' ? st.g + 1 : st.g;
+  P.minBase = P.steps.slice(0, P.i).reduce((a, s) => a + (s.k === 'work' && P.w.ex[s.ei].type === 'minute' ? s.dur : 0), 0);
+  const minuteMid = x => `<div class="p-board mb">${boardSVG(null, null, false, taskMarks(x))}</div><div class="tasks">${x.tasks.map((t, i) => `<div class="task"><i style="background:${TCOL[i % 3]}"></i>${esc(taskText(t))}</div>`).join('')}</div>`;
+  const setTxt = st.k === 'done' ? '' : `${e && e.type === 'minute' ? 'Minute' : 'Satz'} ${gset} <span>/ ${P.total}</span>`;
+  const grip = (hold, left) => `<div class="grip">${handSVG(e.fingers, e.grip, left)}<div class="gn">${hold ? FINGERS[e.fingers] : 'frei'}</div><div>${hold ? esc(GRIPS[e.grip]) : 'Hand nicht am Board'}</div></div>`;
+  let title = '', sub = '', subG = false, mid = '', btn = '', right = ht, controls = true;
+  switch (st.k) {
+    case 'weight': {
+      const kg = P.weights[st.ei], pct = Math.round(kg / (+S.bw || 70) * 100);
+      title = 'Zusätzliches Gewicht hinzufügen?'; sub = 'Für: ' + esc(exTitle(e)); controls = false;
+      mid = `<div class="wt"><div>${kg < 0 ? 'Ich entlaste mit' : 'Ich füge hinzu'}</div><div class="row"><button data-a="p-kg" data-d="-1" aria-label="Weniger">${PI.minus}</button><div class="val"><b>${Math.abs(kg)}</b> <small>kg</small></div><button data-a="p-kg" data-d="1" aria-label="Mehr">${PI.plus}</button></div><div>${Math.abs(pct)} % vom Körpergewicht</div></div>`;
+      btn = `<button class="p-btn" data-a="p-go">Weiter</button>`; break;
+    }
+    case 'ready':
+      if (e.type === 'minute') {
+        title = 'Mach dich bereit für ' + esc(exTitle(e)); sub = `${esc(P.w.name)} · ${Math.round(P.minTotal / 60)} Minuten ohne Pause`; subG = true;
+        mid = minuteMid(e); btn = `<button class="p-btn" data-a="p-go">Starten</button>`; break;
+      }
+      title = 'Mach dich bereit für ' + esc(exTitle(e)); sub = 'Brauche Beastmaker 1000 · ' + esc(holdsText(e)); subG = true;
+      mid = `${grip(e.L, true)}<div class="p-board">${boardSVG(e.L, e.R)}</div>${grip(e.R, false)}`;
+      btn = `<button class="p-btn" data-a="p-go">Starten</button>`; break;
+    case 'count':
+      controls = false; mid = `<div class="big" id="pbig">${Math.ceil(P.remain)}</div>`; break;
+    case 'work':
+      if (e.type === 'minute') {
+        const n = P.w.ex[st.ei + 1];
+        title = esc(e.name); mid = minuteMid(e);
+        btn = `<div class="p-next">${n && n.type === 'minute' ? 'Danach: ' + esc(n.tasks.map(taskText).join(' → ')) : 'Letzte Übung!'}</div>`;
+        right = `<div class="p-time" id="ptime">${mmss(P.remain)}</div><div class="tot">Gesamt <span id="ptot"></span> / ${mmss(P.minTotal)}</div>`; break;
+      }
+      title = esc(exTitle(e)); sub = e.type === 'hang' ? `Wdh. ${st.r} / ${e.reps}${P.weights[st.ei] ? ` · ${P.weights[st.ei] > 0 ? '+' : ''}${P.weights[st.ei]} kg` : ''}` : (P.weights[st.ei] ? `${P.weights[st.ei] > 0 ? '+' : ''}${P.weights[st.ei]} kg` : '');
+      mid = `<div class="p-board">${boardSVG(e.L, e.R)}</div>`;
+      btn = `<button class="p-btn" data-a="p-kaputt">Geschafft!</button>`;
+      right = `<div class="p-time" id="ptime">${mmss(P.remain)}</div>`; break;
+    case 'repRest':
+      title = 'Kurz loslassen'; sub = `Gleich Wdh. ${st.r + 1} / ${e.reps}`;
+      mid = `<div class="rt"><div class="p-time" id="ptime">${mmss(P.remain)}</div><div class="lb">Pause</div></div>`;
+      btn = `<button class="p-btn" data-a="p-next">Weiter</button>`; break;
+    case 'rest': {
+      const n = P.w.ex[st.next];
+      title = `Du hast Satz ${st.g} geschafft`; sub = (st.next !== st.ei ? 'Nächste Übung: ' : 'Nächster Satz: ') + esc(exTitle(n));
+      mid = `<div class="rt"><div class="p-time" id="ptime">${mmss(P.remain)}</div><div class="lb">Pause</div><button class="plus" data-a="p-more">+15 s</button></div>`;
+      btn = `<button class="p-btn" data-a="p-next">Pause überspringen</button>`; break;
+    }
+    case 'done': {
+      const sets = P.sess.ex.reduce((a, x) => a + x.sets.filter(s => s.sec > 0 || s.done).length, 0);
+      title = 'Training geschafft!'; sub = esc(P.w.name); controls = false;
+      mid = `<div class="done-s"><div><b>${Math.round(P.sess.hang)} s</b><span>Hangtime</span></div><div><b>${sets}</b><span>Sätze</span></div><div><b>${mmss(P.sess.dur)}</b><span>Dauer</span></div></div>`;
+      btn = `<button class="p-btn" data-a="p-end">Fertig</button>`; right = ''; break;
+    }
+  }
+  const dlg = P.dlg ? `<div class="dlg-bg"><div class="dlg"><h3>Wie viele Wiederholungen hast du vollendet?</h3><p>Wähle aus, wie viele Wiederholungen du gemacht hast, und drücke Abschicken.</p>
+    <div class="v" id="dlgv">${P.dlgVal}</div><input type="range" min="0" max="${P.w.ex[P.dlg.ei].reps + 4}" value="${P.dlgVal}" data-range><button class="ok" data-a="p-reps">Abschicken</button></div></div>` : '';
+  proot.innerHTML = `<div class="player ${phase}"><div class="fill" id="pfill"></div><div class="p-in">
+    <div class="p-top"><button class="p-x" data-a="p-close" aria-label="Schließen">${PI.x}</button><div class="p-title">${title}</div>${ctrl(controls)}</div>
+    ${sub ? `<div class="p-sub${subG ? ' g' : ''}">${sub}</div>` : ''}
+    <div class="p-mid">${mid}</div>
+    <div class="p-bot"><div class="p-set">${setTxt}</div><div>${btn}</div><div class="p-right">${right}</div></div>
+    ${st.k === 'ready' ? '<div class="rot">Tipp: Handy quer halten</div>' : ''}
+  </div>${dlg}</div>`;
+  updateLive();
+}
+function finish(partial) {
+  if (!P || P.saved) return;
+  P.sess.dur = (Date.now() - P.start) / 1000; P.sess.partial = partial;
+  P.w.ex.forEach((e, i) => { if (e.askWeight) S.lastW[e.id] = P.weights[i]; }); saveS();
+  if (P.sess.ex.some(x => x.sets.some(s => s.sec > 0 || s.done))) { HIST.unshift(P.sess); saveH(); }
+  P.saved = true;
+  if (!partial) say('Training geschafft. Stark!');
+}
+function closePlayer() { clearInterval(P.iv); P = null; wakeLock(false); proot.innerHTML = ''; render(); }
+const PA = {
+  'p-close': () => {
+    if (cur().k === 'done') return closePlayer();
+    P.paused = true; clearInterval(P.iv); P.iv = null; renderPlayer();
+    if (confirm('Training beenden? Der bisherige Fortschritt wird im Verlauf gespeichert.')) { leaveWork(true); P.dlg = null; finish(true); closePlayer(); }
+    else { P.paused = false; if (P.iv === null && (cur().dur || cur().k === 'count')) run(); renderPlayer(); }
+  },
+  'p-snd': () => { S.sound = !S.sound; saveS(); renderPlayer(); },
+  'p-go': () => { audio(); enter(P.i + 1); },
+  'p-pause': () => {
+    const st = cur(); audio();
+    if (st.k === 'ready' || st.k === 'weight') return enter(P.i + 1);
+    if (!st.dur && st.k !== 'count') return;
+    P.paused = !P.paused;
+    if (P.paused) { clearInterval(P.iv); P.iv = null; } else run();
+    renderPlayer();
+  },
+  'p-next': () => { audio(); leaveWork(true); P.paused = false; enter(P.i + 1); },
+  'p-prev': () => { let j = P.i - 1; while (j > 0 && P.steps[j].k === 'count') j--; P.paused = false; P.dlg = null; enter(j); },
+  'p-kaputt': () => {
+    const st = cur(); leaveWork(st.k === 'work' && P.w.ex[st.ei].type === 'hang');
+    // restliche Wiederholungen dieses Satzes überspringen
+    let j = P.i + 1; while (P.steps[j] && P.steps[j].ei === st.ei && P.steps[j].s === st.s && (P.steps[j].k === 'work' || P.steps[j].k === 'repRest')) j++;
+    P.paused = false; enter(j);
+  },
+  'p-kg': el => { P.weights[cur().ei] += +el.dataset.d; renderPlayer(); },
+  'p-more': () => { P.remain += 15; P.endAt += 15000; P.steps[P.i].dur += 15; updateLive(); },
+  'p-reps': () => { P.sess.ex[P.dlg.ei].sets[P.dlg.s - 1].done = P.dlgVal; P.dlg = null; if (P.saved) saveH(); renderPlayer(); },
+  'p-end': () => closePlayer()
+};
+
+render();
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
