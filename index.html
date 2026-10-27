@@ -556,13 +556,7 @@ function todayBanner() {
 }
 function calView() {
   const c = S.challenge, today = ymd(new Date());
-  if (!c) return `<div class="page"><div class="head"><h1>Kalender</h1></div>
-    <div class="plan-card"><div class="pc-d">Trainingsplan</div><h3>Fingerboard-Challenge</h3>
-    <div class="note" style="color:#c9c8e8">${PLAN.length} Wochen mit je 3 Trainingstagen (Tag 2, 4 und 7 der Woche). Doppel-Einheiten werden automatisch zu einem Training ohne Pause verbunden.</div>
-    <div class="field" style="border-color:rgba(255,255,255,.15);margin-top:8px"><label>Tag 1 der Challenge</label><input type="date" class="sel" id="cstart" value="${today}"></div>
-    <button class="btn" data-a="chstart">Challenge starten</button></div>
-    <div class="sec"><h2>Plan</h2>${PLAN.map((wk, wi) => `<div class="field"><label>Woche ${wi + 1}</label><span>${wk.map(lv => lv.map(k => LV[k]).join(' + ')).join(' · ')}</span></div>`).join('')}</div></div>`;
-  if (!V.calSel) { const nx = c.sessions.find(x => x.date >= today && !planDone(x.date)); V.calSel = nx ? nx.date : today; }
+  if (!V.calSel) { const nx = c && c.sessions.find(x => x.date >= today && !planDone(x.date)); V.calSel = nx ? nx.date : today; }
   if (!V.calMonth) V.calMonth = V.calSel.slice(0, 7);
   const [y, m] = V.calMonth.split('-').map(Number), first = new Date(y, m - 1, 1);
   const lead = (first.getDay() + 6) % 7, days = new Date(y, m, 0).getDate();
@@ -573,24 +567,34 @@ function calView() {
     const dots = [...(p ? p.lv : []), ...fr.map(freeLv)];
     cells += `<div class="${cls}${fr.length && !p ? ' plan' : ''}" ${p || fr.length ? `data-a="calsel" data-d="${k}"` : ''}><span class="num">${d.getDate()}</span>${dots.length ? `<span class="cdots">${dots.map(x => `<i class="lv-${x}"></i>`).join('')}</span>` : ''}${done ? '<span class="ok">✓</span>' : fr.length ? '<span class="ok free">✓</span>' : ''}</div>`;
   }
-  const sel = planOn(V.calSel), selFree = freeOn(V.calSel), doneN = c.sessions.filter(x => planDone(x.date)).length;
-  const wk = Math.min(PLAN.length, Math.max(1, Math.floor((pday(today) - pday(c.start)) / 864e5 / 7) + 1));
+  const sel = planOn(V.calSel), selFree = freeOn(V.calSel);
   const selCard = sel ? `<div class="plan-card"><div class="pc-d">${fmtDay(sel.date)} · Woche ${sel.week}</div><h3>${planLabel(sel)}${planDone(sel.date) ? ' ✓' : ''}</h3>
     <div class="pc-list">${sel.lv.map(k => `<span class="lv-${k}">${LV[k]} Workout</span>`).join('')}</div>
     <div class="note" style="color:#c9c8e8;margin-bottom:10px">${planMin(sel)} Min${sel.lv.length > 1 ? ' am Stück, ohne Pause dazwischen' : ''}</div>
     <button class="btn" data-a="planstart" data-d="${sel.date}">${planDone(sel.date) ? 'Nochmal trainieren' : 'Training starten'}</button></div>`
-    : selFree.length ? '' : `<div class="note" style="text-align:center;margin-top:16px">${fmtDay(V.calSel)}: kein Training geplant.</div>`;
+    : selFree.length ? '' : `<div class="note" style="text-align:center;margin-top:16px">${fmtDay(V.calSel)}: ${c ? 'kein Training geplant' : 'kein Training'}.</div>`;
   const freeCard = selFree.length ? `<div class="hist" style="cursor:default"><div class="t"><b>Freies Training</b><span>${sel ? '' : fmtDay(V.calSel)}</span></div>
     ${selFree.map(h => `<small><i class="lv-${freeLv(h)}" style="display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px"></i>${esc(h.name)} · Hangtime ${human(h.hang)}${h.partial ? ' · abgebrochen' : ''}</small>`).join('<br>')}</div>` : '';
+  // Ohne Challenge zeigt der Kalender nur die freien Trainings, darunter der Start der Challenge
+  let top = '', bottom = `<div class="plan-card" style="margin-top:20px"><div class="pc-d">Trainingsplan</div><h3>Fingerboard-Challenge</h3>
+    <div class="note" style="color:#c9c8e8">${PLAN.length} Wochen mit je 3 Trainingstagen (Tag 2, 4 und 7 der Woche). Doppel-Einheiten werden automatisch zu einem Training ohne Pause verbunden.</div>
+    <div class="field" style="border-color:rgba(255,255,255,.15);margin-top:8px"><label>Tag 1 der Challenge</label><input type="date" class="sel" id="cstart" value="${today}"></div>
+    <button class="btn" data-a="chstart">Challenge starten</button></div>`;
+  if (c) {
+    const doneN = c.sessions.filter(x => planDone(x.date)).length;
+    const wk = Math.min(PLAN.length, Math.max(1, Math.floor((pday(today) - pday(c.start)) / 864e5 / 7) + 1));
+    top = `<div class="sec" style="margin-top:12px"><div style="display:flex;justify-content:space-between;font-size:15px"><span>Woche ${wk} von ${PLAN.length}</span><span>${doneN} / ${c.sessions.length} Einheiten</span></div><div class="prog"><i style="width:${doneN / c.sessions.length * 100}%"></i></div></div>`;
+    bottom = `<div class="sec"><h2>Erinnerung</h2><button class="btn ghost" data-a="chics">🔔 Termine in Handy-Kalender (18 Uhr)</button>
+  <div class="note">Lädt eine Kalenderdatei mit allen ${c.sessions.length} Trainingstagen um 18:00 inkl. Mitteilung. Auf dem iPhone öffnen und „Alle hinzufügen“ wählen.</div></div>
+  <div class="sec"><button class="btn danger" data-a="chstop">Challenge beenden</button></div>`;
+  }
   return `<div class="page"><div class="head"><h1>Kalender</h1></div>
-  <div class="sec" style="margin-top:12px"><div style="display:flex;justify-content:space-between;font-size:15px"><span>Woche ${wk} von ${PLAN.length}</span><span>${doneN} / ${c.sessions.length} Einheiten</span></div><div class="prog"><i style="width:${doneN / c.sessions.length * 100}%"></i></div></div>
+  ${top}
   <div class="cal-h"><button data-a="calmon" data-d="-1" aria-label="Voriger Monat">‹</button><b>${first.toLocaleDateString('de-DE', {month:'long', year:'numeric'})}</b><button data-a="calmon" data-d="1" aria-label="Nächster Monat">›</button></div>
   <div class="cal">${['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map(x => `<div class="wd">${x}</div>`).join('')}${cells}</div>
-  <div class="cal-leg"><span><i class="lv-E"></i>Easy</span><span><i class="lv-M"></i>Medium</span><span><i class="lv-H"></i>Hard</span><span>✓ Plan erledigt</span><span style="color:#9c9ca8">✓ freies Training</span></div>
+  <div class="cal-leg"><span><i class="lv-E"></i>Easy</span><span><i class="lv-M"></i>Medium</span><span><i class="lv-H"></i>Hard</span>${c ? '<span>✓ Plan erledigt</span>' : ''}<span style="color:#9c9ca8">✓ freies Training</span></div>
   ${selCard}${freeCard}
-  <div class="sec"><h2>Erinnerung</h2><button class="btn ghost" data-a="chics">🔔 Termine in Handy-Kalender (18 Uhr)</button>
-  <div class="note">Lädt eine Kalenderdatei mit allen ${c.sessions.length} Trainingstagen um 18:00 inkl. Mitteilung. Auf dem iPhone öffnen und „Alle hinzufügen“ wählen.</div></div>
-  <div class="sec"><button class="btn danger" data-a="chstop">Challenge beenden</button></div></div>`;
+  ${bottom}</div>`;
 }
 
 function histView() {
@@ -710,7 +714,11 @@ document.addEventListener('change', ev => {
 });
 
 // ---------- Ton, Sprache, Display an ----------
-let AC;
+// Ansagen dürfen Spotify & Co. nur kurz leiser machen: sonst "ambient" (mischt sich mit anderer Musik),
+// während einer Sprachansage "transient" (andere Audioquellen werden kurz abgesenkt)
+let AC, SAY = 0;
+function audioMode(t) { try { if (navigator.audioSession && navigator.audioSession.type !== t) navigator.audioSession.type = t; } catch {} }
+audioMode('ambient');
 function audio() { if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch {} } if (AC && AC.state === 'suspended') AC.resume(); return AC; }
 function beep(f = 880, d = .12, v = .3) {
   if (!S.sound) return; const a = audio(); if (!a) return;
@@ -722,7 +730,11 @@ function say(t) {
   if (!S.sound || !S.voice || !window.speechSynthesis) return;
   // "Hang" würde deutsch falsch ausgesprochen, deshalb wird "Hängen" angesagt
   t = t.replace(/\bHang\b/g, 'Hängen');
-  try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = 'de-DE'; u.rate = 1.05; speechSynthesis.speak(u); } catch {}
+  try {
+    speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t), n = ++SAY; u.lang = 'de-DE'; u.rate = 1.05;
+    u.onend = u.onerror = () => { if (n === SAY) audioMode('ambient'); };
+    audioMode('transient'); speechSynthesis.speak(u);
+  } catch {}
 }
 let WL = null;
 async function wakeLock(on) {
